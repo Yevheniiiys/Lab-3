@@ -18,7 +18,7 @@ public abstract class Computer
     }
 }
 
-public class Server : Computer
+public class Server : Computer, IConnectable
 {
     public double StorageCapacity { get; set; }
 
@@ -28,13 +28,23 @@ public class Server : Computer
         StorageCapacity = storageCapacity;
     }
 
-    public override string ToString()
+    public void Connect(Computer otherDevice)
     {
-        return base.ToString() + ", Ємність сховища: " + StorageCapacity + " ТБ";
+        Console.WriteLine(IpAddress + " підключився до " + otherDevice.IpAddress);
+    }
+
+    public void SendData(string data, Computer receiver)
+    {
+        Console.WriteLine(IpAddress + " передає дані: '" + data + "' до " + receiver.IpAddress);
+    }
+
+    public void ReceiveData(string data, Computer sender)
+    {
+        Console.WriteLine(IpAddress + " отримав дані: '" + data + "' від " + sender.IpAddress);
     }
 }
 
-public class WorkStation : Computer
+public class WorkStation : Computer, IConnectable
 {
     public string GraphicsCard { get; set; }
 
@@ -44,13 +54,23 @@ public class WorkStation : Computer
         GraphicsCard = graphicsCard;
     }
 
-    public override string ToString()
+    public void Connect(Computer otherDevice)
     {
-        return base.ToString() + ", Видеокарта: " + GraphicsCard;
+        Console.WriteLine(IpAddress + " підключився до " + otherDevice.IpAddress);
+    }
+
+    public void SendData(string data, Computer receiver)
+    {
+        Console.WriteLine(IpAddress + " передає дані: '" + data + "' до " + receiver.IpAddress);
+    }
+
+    public void ReceiveData(string data, Computer sender)
+    {
+        Console.WriteLine(IpAddress + " отримав дані: '" + data + "' від " + sender.IpAddress);
     }
 }
 
-public class Router : Computer
+public class Router : Computer, IConnectable
 {
     public string RoutingProtocol { get; set; }
 
@@ -60,102 +80,51 @@ public class Router : Computer
         RoutingProtocol = routingProtocol;
     }
 
-    public override string ToString()
+    public void Connect(Computer otherDevice)
     {
-        return base.ToString() + ", Протокол маршрутизації: " + RoutingProtocol;
+        Console.WriteLine(IpAddress + " підключився до " + otherDevice.IpAddress);
+    }
+
+    public void SendData(string data, Computer receiver)
+    {
+        Console.WriteLine(IpAddress + " передає дані: '" + data + "' до " + receiver.IpAddress);
+    }
+
+    public void ReceiveData(string data, Computer sender)
+    {
+        Console.WriteLine(IpAddress + " отримав дані: '" + data + "' від " + sender.IpAddress);
     }
 }
 
 public interface IConnectable
 {
     void Connect(Computer otherDevice);
-    void SendData(string data, Computer receiverDevice);
-    void ReceiveData(string data, Computer senderDevice);
+    void SendData(string data, Computer receiver);
+    void ReceiveData(string data, Computer sender);
 }
 
 public class Network
 {
-    private List<Computer> devices = new List<Computer>();
+    private List<IConnectable> devices = new List<IConnectable>();
 
-    public void AddDevice(Computer device)
+    public void AddDevice(IConnectable device)
     {
         devices.Add(device);
-        Console.WriteLine(device + " підключено до мережі.");
     }
 
-    public void RemoveDevice(Computer device)
+    public void ShowDevices()
     {
-        devices.Remove(device);
-        Console.WriteLine(device + " відключено від мережі.");
+        Console.WriteLine("\nДоступні пристрої:");
+        for (int i = 0; i < devices.Count; i++)
+            Console.WriteLine((i + 1) + ". " + devices[i]);
     }
 
-    public void TransmitData(IConnectable sender, IConnectable receiver, string data)
+    public void TransmitData(int senderIndex, int receiverIndex, string data)
     {
+        IConnectable sender = devices[senderIndex];
+        IConnectable receiver = devices[receiverIndex];
         sender.SendData(data, receiver as Computer);
         receiver.ReceiveData(data, sender as Computer);
-    }
-}
-
-public class ServerWithConnection : Server, IConnectable
-{
-    public ServerWithConnection(string ipAddress, string osType, double storageCapacity)
-        : base(ipAddress, osType, storageCapacity) { }
-
-    public void Connect(Computer otherDevice)
-    {
-        Console.WriteLine("Сервер " + IpAddress + " підключився до " + otherDevice.IpAddress);
-    }
-
-    public void SendData(string data, Computer receiverDevice)
-    {
-        Console.WriteLine("Сервер " + IpAddress + " передає дані: '" + data + "' до " + receiverDevice.IpAddress);
-    }
-
-    public void ReceiveData(string data, Computer senderDevice)
-    {
-        Console.WriteLine("Сервер " + IpAddress + " отримав дані: '" + data + "' від " + senderDevice.IpAddress);
-    }
-}
-
-public class WorkStationWithConnection : WorkStation, IConnectable
-{
-    public WorkStationWithConnection(string ipAddress, string osType, string graphicsCard)
-        : base(ipAddress, osType, graphicsCard) { }
-
-    public void Connect(Computer otherDevice)
-    {
-        Console.WriteLine("Робоча станція " + IpAddress + " підключилася до " + otherDevice.IpAddress);
-    }
-
-    public void SendData(string data, Computer receiverDevice)
-    {
-        Console.WriteLine("Робоча станція " + IpAddress + " передає дані: '" + data + "' до " + receiverDevice.IpAddress);
-    }
-
-    public void ReceiveData(string data, Computer senderDevice)
-    {
-        Console.WriteLine("Робоча станція " + IpAddress + " отримала дані: '" + data + "' від " + senderDevice.IpAddress);
-    }
-}
-
-public class RouterWithConnection : Router, IConnectable
-{
-    public RouterWithConnection(string ipAddress, string osType, string routingProtocol)
-        : base(ipAddress, osType, routingProtocol) { }
-
-    public void Connect(Computer otherDevice)
-    {
-        Console.WriteLine("Маршрутизатор " + IpAddress + " підключився до " + otherDevice.IpAddress);
-    }
-
-    public void SendData(string data, Computer receiverDevice)
-    {
-        Console.WriteLine("Маршрутизатор " + IpAddress + " передає дані: '" + data + "' до " + receiverDevice.IpAddress);
-    }
-
-    public void ReceiveData(string data, Computer senderDevice)
-    {
-        Console.WriteLine("Маршрутизатор " + IpAddress + " отримав дані: '" + data + "' від " + senderDevice.IpAddress);
     }
 }
 
@@ -163,17 +132,68 @@ public class Program
 {
     public static void Main()
     {
-        var server = new ServerWithConnection("192.168.1.1", "Linux", 10);
-        var workstation = new WorkStationWithConnection("192.168.1.2", "Windows", "NVIDIA GTX 1060");
-        var router = new RouterWithConnection("192.168.1.3", "Linux", "BGP");
-
         var network = new Network();
+        bool running = true;
 
-        network.AddDevice(server);
-        network.AddDevice(workstation);
-        network.AddDevice(router);
+        while (running)
+        {
+            Console.WriteLine("\nМеню:\n1. Додати пристрій\n2. Показати пристрої\n3. Підключити пристрої\n4. Вийти");
+            Console.Write("Виберіть опцію: ");
+            int choice = int.Parse(Console.ReadLine());
 
-        network.TransmitData(workstation, server, "Привіт, сервер!");
-        network.TransmitData(router, workstation, "Маршрут встановлено.");
+            switch (choice)
+            {
+                case 1: AddDevice(network); break;
+                case 2: network.ShowDevices(); break;
+                case 3: ConnectDevices(network); break;
+                case 4: running = false; break;
+                default: Console.WriteLine("Невірний вибір."); break;
+            }
+        }
+    }
+
+    private static void AddDevice(Network network)
+    {
+        Console.WriteLine("\n1. Сервер\n2. Робоча станція\n3. Маршрутизатор");
+        Console.Write("Виберіть тип пристрою: ");
+        int deviceType = int.Parse(Console.ReadLine());
+
+        Console.Write("Введіть IP-адресу: ");
+        string ip = Console.ReadLine();
+        Console.Write("Введіть тип ОС: ");
+        string os = Console.ReadLine();
+
+        if (deviceType == 1)
+        {
+            Console.Write("Введіть ємність сховища (ТБ): ");
+            double storage = double.Parse(Console.ReadLine());
+            network.AddDevice(new Server(ip, os, storage));
+        }
+        else if (deviceType == 2)
+        {
+            Console.Write("Введіть модель відеокарти: ");
+            string graphics = Console.ReadLine();
+            network.AddDevice(new WorkStation(ip, os, graphics));
+        }
+        else
+        {
+            Console.Write("Введіть протокол маршрутизації: ");
+            string protocol = Console.ReadLine();
+            network.AddDevice(new Router(ip, os, protocol));
+        }
+    }
+
+    private static void ConnectDevices(Network network)
+    {
+        network.ShowDevices();
+        Console.Write("\nВиберіть пристрій відправника (номер): ");
+        int senderIndex = int.Parse(Console.ReadLine()) - 1;
+        Console.Write("Виберіть пристрій отримувача (номер): ");
+        int receiverIndex = int.Parse(Console.ReadLine()) - 1;
+
+        Console.Write("Введіть дані для передачі: ");
+        string data = Console.ReadLine();
+
+        network.TransmitData(senderIndex, receiverIndex, data);
     }
 }
