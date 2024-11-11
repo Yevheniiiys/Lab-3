@@ -1,0 +1,145 @@
+using System;
+using System.Collections.Generic;
+
+public class Road
+{
+    public double Length { get; set; }
+    public double Width { get; set; }
+    public int Lanes { get; set; }
+    public double TrafficLevel { get; set; }
+
+    public Road(double length, double width, int lanes, double trafficLevel)
+    {
+        Length = length;
+        Width = width;
+        Lanes = lanes;
+        TrafficLevel = trafficLevel;
+    }
+
+    public void UpdateTrafficLevel(double newTrafficLevel)
+    {
+        TrafficLevel = newTrafficLevel;
+    }
+
+    public override string ToString()
+    {
+        return string.Format("Дорога: {0} м, {1} м ширини, {2} смуг, Трафік: {3}%", Length, Width, Lanes, TrafficLevel);
+    }
+}
+
+public class Vehicle
+{
+    public string Type { get; set; }
+    public double Speed { get; set; }
+    public double Size { get; set; }
+
+    public Vehicle(string type, double speed, double size)
+    {
+        Type = type;
+        Speed = speed;
+        Size = size;
+    }
+}
+
+public interface IDriveable
+{
+    void Move();
+    void Stop();
+}
+
+public class DrivableVehicle : Vehicle, IDriveable
+{
+    public DrivableVehicle(string type, double speed, double size) : base(type, speed, size) { }
+
+    public void Move()
+    {
+        Console.WriteLine("{0} рухається зі швидкістю {1} км/год.", Type, Speed);
+    }
+
+    public void Stop()
+    {
+        Console.WriteLine("{0} зупиняється.", Type);
+    }
+}
+
+public class RoadSimulation
+{
+    public Road Road { get; set; }
+    public List<DrivableVehicle> Vehicles { get; set; }
+
+    public RoadSimulation(Road road)
+    {
+        Road = road;
+        Vehicles = new List<DrivableVehicle>();
+    }
+
+    public void AddVehicle(DrivableVehicle vehicle)
+    {
+        Vehicles.Add(vehicle);
+    }
+
+    public void SimulateTraffic()
+    {
+        Console.WriteLine(Road);
+        foreach (var vehicle in Vehicles)
+        {
+            vehicle.Move();
+        }
+    }
+}
+
+public class TrafficSimulation
+{
+    public List<Road> Roads { get; set; }
+    public bool TrafficLights { get; set; }
+
+    public TrafficSimulation()
+    {
+        Roads = new List<Road>();
+        TrafficLights = true;
+    }
+
+    public void AddRoad(Road road)
+    {
+        Roads.Add(road);
+    }
+
+    public void SwitchTrafficLights()
+    {
+        TrafficLights = !TrafficLights;
+    }
+
+    public void SimulateTrafficAtIntersection()
+    {
+        foreach (var road in Roads)
+        {
+            Console.WriteLine(road);
+        }
+
+        Console.WriteLine(TrafficLights ? "Світлофор зелений." : "Світлофор червоний.");
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var road1 = new Road(1000, 10, 2, 50);
+        var road2 = new Road(500, 8, 1, 70);
+
+        var vehicle1 = new DrivableVehicle("Автомобіль", 80, 4);
+        var vehicle2 = new DrivableVehicle("Автобус", 60, 10);
+
+        var roadSim1 = new RoadSimulation(road1);
+        roadSim1.AddVehicle(vehicle1);
+        roadSim1.AddVehicle(vehicle2);
+
+        var trafficSim = new TrafficSimulation();
+        trafficSim.AddRoad(road1);
+        trafficSim.AddRoad(road2);
+
+        Console.WriteLine("Симуляція трафіку на дорозі:");
+        roadSim1.SimulateTraffic();
+        trafficSim.SimulateTrafficAtIntersection();
+    }
+}
